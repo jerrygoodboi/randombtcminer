@@ -1,0 +1,7 @@
+{
+ "pool_address":"solo.ckpool.org",
+ "pool_port": 3333,
+ "user_name":"bc1q4djnhdm90727e8hydtycw6jar7q7f5yzsxd2ye",
+ "password":"x",
+ "min_diff":0.01
+}
