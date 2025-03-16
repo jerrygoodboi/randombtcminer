@@ -20,17 +20,13 @@
     uint8_t merkle_root_bytes[32];
     uint8_t hash1[SHA256_DIGEST_LENGTH];
     uint8_t hash2[SHA256_DIGEST_LENGTH];
-struct sande{
-	int start;
-	int end;
-};
 void *th(void *arg){
-    struct sande *args = (struct sande*)arg; 
     size_t counter = 0;
-    uint32_t nonce = args->start;
-    uint32_t end = args->end;
-    while(nonce <= end) {
+    uint32_t nonce;
+    while(1) {
+	nonce = arc4random();
         t1 = time(0);
+
         if (t1 - t2 >= 1) {
             printf("%d %lu H/s\n",pthread_self(), counter);
             t2 = t1;
@@ -45,8 +41,6 @@ void *th(void *arg){
             sprintf(block_hash + i * 2, "%02x", hash2[31 - i]);
         }
         block_hash[64] = '\0';
-
-        nonce++;
         counter++;
     }
 }
@@ -54,14 +48,6 @@ int main() {
     short NO = sysconf(_SC_NPROCESSORS_ONLN);
     t1 = time(0);
     t2 = t1 + 1;
-    //uint64_t range = 4294967296 / cpu;
-    uint64_t range = 1600000 / NO;
-    struct sande values[NO];
-    for (int i = 0; i < NO; i++) {
-    	values[i].start = i * range;
-    	values[i].end = (i + 1) * range;
-    }
-
     for (int i = 0; i < 32; i++) {
         sscanf(prev_block + (31 - i) * 2, "%2hhx", &prev_block_bytes[i]);
         sscanf(merkle_root + (31 - i) * 2, "%2hhx", &merkle_root_bytes[i]);
@@ -74,7 +60,7 @@ int main() {
     memcpy(block_header + 72, &bits, 4);
     pthread_t t[NO];
     for( int i = 0; i < NO; i++)
-    pthread_create(&t[i], 0, th, &values[i]);
+    pthread_create(&t[i], 0, th, 0);
     for( int i = 0; i < NO; i++)
     pthread_join(t[i], 0);
 
