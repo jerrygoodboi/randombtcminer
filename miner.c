@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <openssl/sha.h>
 //#define NO 48
+#define MAX 4294967295
 
     uint32_t version = 0x312cc000;
     const char *prev_block = "000000000000000000014906ea57ed18b76cb826db91bcdb4d0f27537eac80d7";
@@ -21,18 +22,20 @@
     uint8_t hash1[SHA256_DIGEST_LENGTH];
     uint8_t hash2[SHA256_DIGEST_LENGTH];
 struct sande{
-	int start;
-	int end;
+        uint64_t start;
+        uint64_t end;
+        uint64_t id;
 };
 void *th(void *arg){
-    struct sande *args = (struct sande*)arg; 
+    struct sande *args = (struct sande*)arg;
     size_t counter = 0;
     uint32_t nonce = args->start;
     uint32_t end = args->end;
+    printf("thread %d %lu - %lu\n", args->id, args->start, args->end);
     while(nonce <= end) {
         t1 = time(0);
         if (t1 - t2 >= 1) {
-            printf("%d %lu H/s\n",pthread_self(), counter);
+            printf("%d - %lu H/s\n",args->id, counter);
             t2 = t1;
             counter = 0;
         }
@@ -54,12 +57,16 @@ int main() {
     short NO = sysconf(_SC_NPROCESSORS_ONLN);
     t1 = time(0);
     t2 = t1 + 1;
-    //uint64_t range = 4294967296 / cpu;
-    uint64_t range = 1600000 / NO;
+    uint64_t range = MAX / NO;
+    //uint64_t range = 1600000 / NO;
     struct sande values[NO];
-    for (int i = 0; i < NO; i++) {
-    	values[i].start = i * range;
-    	values[i].end = (i + 1) * range;
+    for (uint64_t i = 0; i < NO; i++) {
+        values[i].start = i * range;
+        if(i == NO - 1)
+                values[i].end = MAX;
+        else
+                values[i].end = (i + 1) * range;
+        values[i].id = i;
     }
 
     for (int i = 0; i < 32; i++) {
