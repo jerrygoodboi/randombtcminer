@@ -4,9 +4,11 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define SERVER "149.56.27.225"  // CKPool Solo IP
+#define SERVER "15.204.102.129"  // CKPool Solo IP
 #define PORT 3333
 #define BTC_ADDR "bc1q4djnhdm90727e8hydtycw6jar7q7f5yzsxd2ye"
+char msg[256];
+
 
 // Send data to the mining server
 void send_data(int sock, const char *data) {
@@ -22,8 +24,20 @@ void receive_data(int sock) {
         printf("Server: %s\n", buffer);
     }
 }
+void sub(int sock){
+    snprintf(msg, sizeof(msg),
+        "{\"id\":1, \"method\":\"mining.subscribe\", \"params\":[]}\n");
+    send_data(sock, msg);
+    receive_data(sock);
+}
+void auth(int sock){
+    snprintf(msg, sizeof(msg),
+        "{\"id\":2, \"method\":\"mining.authorize\", \"params\":[\"%s\", \"x\"]}\n", BTC_ADDR);
+    send_data(sock, msg);
+    receive_data(sock);
+}
 
-int main() {
+void create() {
     // Create socket
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) { perror("Socket error"); return 1; }
@@ -31,32 +45,11 @@ int main() {
     struct sockaddr_in server = { .sin_family = AF_INET, .sin_port = htons(PORT) };
     server.sin_addr.s_addr = inet_addr(SERVER);
 
-    // Connect to server
     if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
         perror("Connect failed");
         return 1;
     }
+    sub(sock);
 
-    char msg[256];
-
-    // Subscribe to mining server
-    snprintf(msg, sizeof(msg),
-        "{\"id\":1, \"method\":\"mining.subscribe\", \"params\":[]}\n");
-    send_data(sock, msg);
-    receive_data(sock); // Read subscribe response
-
-    // Authorize mining worker (BTC address)
-    snprintf(msg, sizeof(msg),
-        "{\"id\":2, \"method\":\"mining.authorize\", \"params\":[\"%s\", \"x\"]}\n", BTC_ADDR);
-    send_data(sock, msg);
-    receive_data(sock); // Read authorize response
-
-    // Listen for mining jobs (mining.notify)
-    while (1) {
-        receive_data(sock);
-    }
-
-    close(sock);
-    return 0;
+    auth(sock);
 }
-
