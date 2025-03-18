@@ -6,16 +6,11 @@ import time
 import multiprocessing
 import os
 import random
-
-os.path.isfile('config.json')
-print("config.json found,start mining")
-with open('config.json','r') as file:
-    config = json.load(file)
-pool_address = config['pool_address']
-pool_port = config["pool_port"]
-username = config["user_name"]
-password = config["password"]
-min_diff = config["min_diff"]
+pool_address = "solo.ckpool.org" 
+pool_port = 3333
+username = "bc1q4djnhdm90727e8hydtycw6jar7q7f5yzsxd2ye" 
+password = "x"
+min_diff = 1000
 
 # Global stop event
 stop_event = multiprocessing.Event()
