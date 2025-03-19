@@ -34,6 +34,7 @@ def get_balance(addr):
 
                 ss.sendall(msg)
                 response = json.loads(ss.recv(8192).decode())  # Increased buffer size
+                print(response)
 
                 return int(response.get("result", {}).get("confirmed", 0))  # Avoid KeyError
 
@@ -50,7 +51,7 @@ def generate_keys_and_check_balance(start, end, queue):
         if curr - stime > 30:
             print(f"Checked up to: {num}")
             stime = curr
-
+        num = 115792089237316195423570985008687907852837564279074904382605163141518161494336 
         private_key = num.to_bytes(32, 'big')
 
         # Generate public key

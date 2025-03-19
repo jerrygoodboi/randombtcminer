@@ -31,6 +31,7 @@ if __name__ == "__main__":
     generate_btc_address_from_int(start, end)
     with open("status.txt", "a") as file:
             file.write(f"{end - 1}")  
+    os.system("git add status.txt")
     os.system("git commit -m auto")
     os.system("git push")
         
