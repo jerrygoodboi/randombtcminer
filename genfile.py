@@ -1,4 +1,5 @@
 import ecdsa
+import os
 import hashlib
 import base58
 from Crypto.Hash import RIPEMD160
@@ -26,6 +27,12 @@ def generate_btc_address_from_int(start, end):
 
 if __name__ == "__main__":
     start = 1
-    end = 2  # Change this as needed
+    end = 10 
     generate_btc_address_from_int(start, end)
+    with open("status.txt", "a") as file:
+            file.write(f"{end - 1}")  
+    os.system("git commit -m auto")
+    os.system("git push")
+        
+
 
