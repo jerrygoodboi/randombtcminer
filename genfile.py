@@ -26,8 +26,13 @@ def generate_btc_address_from_int(start, end):
             file.write(f"{bitcoin_address}\n")  # Only write the BTC address
 
 if __name__ == "__main__":
-    start = 1
-    end = 10 
+    start = 0
+    with open("status.txt", "rb") as file:
+        file.seek(-2, 2)  # Move to the second last byte
+        while file.read(1) != b"\n":  # Read backwards until a newline is
+                file.seek(-2, 1)
+        start = int(file.readline().decode().strip())
+    end = start + 300000000 
     generate_btc_address_from_int(start, end)
     with open("status.txt", "a") as file:
             file.write(f"{end - 1}")  
